@@ -1,6 +1,7 @@
 #include "pipe_networking.h"
-//UPSTREAM = to the server / from the client
-//DOWNSTREAM = to the client / from the server
+
+// UPSTREAM = to the server / from the client
+// DOWNSTREAM = to the client / from the server
 /*=========================
   server_setup
 
@@ -10,21 +11,15 @@
   returns the file descriptor for the upstream pipe.
   =========================*/
 int server_setup() {
-    int from_client = 0;
+    remove(WKP);
 
     int mkfifo_ret = mkfifo(WKP, 0644);
-    if (mkfifo_ret == -1) {
-        perror("mkfifo");
-        exit(EXIT_FAILURE);
-    }
+    ASSERT(mkfifo_ret, "mkfifo")
 
     printf("mkfifo done\n");
 
-    from_client = open(WKP, O_RDONLY, 0);
-    if (from_client == -1) {
-        perror("Server open WKP");
-        exit(EXIT_FAILURE);
-    }
+    int from_client = open(WKP, O_RDONLY, 0);
+    ASSERT(from_client, "Server create WKP")
 
     printf("open done\n");
 
@@ -41,11 +36,12 @@ int server_setup() {
   returns the file descriptor for the upstream pipe (see server setup).
   =========================*/
 int server_handshake(int *to_client) {
+    server_setup();
+
     int from_client;
-    
+
     return from_client;
 }
-
 
 /*=========================
   client_handshake
@@ -57,10 +53,22 @@ int server_handshake(int *to_client) {
   returns the file descriptor for the downstream pipe.
   =========================*/
 int client_handshake(int *to_server) {
-  int from_server;
-  return from_server;
-}
+    // Make PP
+    pid_t client_pid = getpid();
 
+    char private_pipe_name[10];
+    snprintf(private_pipe_name, sizeof(private_pipe_name), "%d", client_pid);
+
+    int mkfifo_ret = mkfifo(private_pipe_name, 0666);
+    ASSERT(mkfifo_ret, "Client create PP")
+
+    // Open WKP
+    int wkp = open(WKP, O_WRONLY, 0);
+    ASSERT(wkp, "Client access WKP")
+
+    int from_server;
+    return from_server;
+}
 
 /*=========================
   server_connect
@@ -71,6 +79,6 @@ int client_handshake(int *to_server) {
   returns the file descriptor for the downstream pipe.
   =========================*/
 int server_connect(int from_client) {
-  int to_client  = 0;
-  return to_client;
+    int to_client = 0;
+    return to_client;
 }
