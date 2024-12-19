@@ -20,22 +20,7 @@
   returns the file descriptor for the upstream pipe.
   =========================*/
 int server_setup() {
-    int from_client = 0;
-
-    return from_client;
-}
-
-/*=========================
-  server_handshake
-  args: int * to_client
-
-  Performs the server side pipe 3 way handshake.
-  Sets *to_client to the file descriptor to the downstream pipe (Client's private pipe).
-
-  returns the file descriptor for the upstream pipe (see server setup).
-  =========================*/
-int server_handshake(int *to_client) {
-    remove(WKP); // TEMP
+    remove(WKP);
 
     // Make named pipe
     int mkfifo_ret = mkfifo(WKP, 0644);
@@ -52,9 +37,23 @@ int server_handshake(int *to_client) {
     // Client connected, so remove the pipe
     remove(WKP);
 
+    return from_client;
+}
+
+/*=========================
+  server_handshake
+  args: int * to_client
+
+  Performs the server side pipe 3 way handshake.
+  Sets *to_client to the file descriptor to the downstream pipe (Client's private pipe).
+
+  returns the file descriptor for the upstream pipe (see server setup).
+  =========================*/
+int server_handshake(int *to_client) {
+    int from_client = server_setup();
+
     char syn[HANDSHAKE_BUFFER_SIZE];
     read(from_client, syn, sizeof(syn));
-
     *to_client = atoi(syn);
 
     printf("[SERVER]: Received SYN: %d\n", *to_client);
@@ -68,9 +67,10 @@ int server_handshake(int *to_client) {
 
     printf("[SERVER]: Sent SYN-ACK: %d\n", syn_ack_value);
 
-    int ack;
-    read(from_client, &ack, sizeof(ack));
-    printf("[SERVER]: Received ACK: %d\n", ack);
+    int ack_value;
+    read(from_client, &ack_value, sizeof(ack_value));
+
+    printf("[SERVER]: Received ACK: %d\n", ack_value);
     printf("[SERVER]: Handshake complete\n");
 
     return from_client;
@@ -91,9 +91,7 @@ int client_handshake(int *to_server) {
     char pid_string[HANDSHAKE_BUFFER_SIZE];
     snprintf(pid_string, sizeof(pid_string), "%d", client_pid);
 
-    remove(pid_string); // TEMP
-
-    // Make PP
+    remove(pid_string); // Just in case
     int mkfifo_ret = mkfifo(pid_string, 0644);
     ASSERT(mkfifo_ret, "Client create PP")
 
@@ -102,7 +100,6 @@ int client_handshake(int *to_server) {
     // Open WKP
     int upstream = open(WKP, O_WRONLY, 0);
     ASSERT(upstream, "Client open WKP")
-
     *to_server = upstream;
 
     // Write SYN
@@ -118,6 +115,8 @@ int client_handshake(int *to_server) {
     read(from_server, &syn_ack_value, sizeof(syn_ack_value));
 
     printf("[CLIENT]: Received SYN-ACK: %d\n", syn_ack_value);
+
+    remove(pid_string);
 
     int ack_value = syn_ack_value + 1;
     write(upstream, &ack_value, sizeof(ack_value));
