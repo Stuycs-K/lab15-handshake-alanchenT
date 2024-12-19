@@ -20,6 +20,21 @@
   returns the file descriptor for the upstream pipe.
   =========================*/
 int server_setup() {
+    int from_client = 0;
+
+    return from_client;
+}
+
+/*=========================
+  server_handshake
+  args: int * to_client
+
+  Performs the server side pipe 3 way handshake.
+  Sets *to_client to the file descriptor to the downstream pipe (Client's private pipe).
+
+  returns the file descriptor for the upstream pipe (see server setup).
+  =========================*/
+int server_handshake(int *to_client) {
     remove(WKP); // TEMP
 
     // Make named pipe
@@ -36,21 +51,6 @@ int server_setup() {
 
     // Client connected, so remove the pipe
     remove(WKP);
-
-    return from_client;
-}
-
-/*=========================
-  server_handshake
-  args: int * to_client
-
-  Performs the server side pipe 3 way handshake.
-  Sets *to_client to the file descriptor to the downstream pipe (Client's private pipe).
-
-  returns the file descriptor for the upstream pipe (see server setup).
-  =========================*/
-int server_handshake(int *to_client) {
-    int from_client = server_setup();
 
     char syn[HANDSHAKE_BUFFER_SIZE];
     read(from_client, syn, sizeof(syn));
