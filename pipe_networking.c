@@ -20,15 +20,18 @@ int server_setup() {
     int mkfifo_ret = mkfifo(WKP, 0644);
     ASSERT(mkfifo_ret, "mkfifo")
 
-    printf("[SERVER]: Created WKP (now waiting for connection)\n");
+    printf("[SERVER]: Created WKP\n");
+    printf("[SERVER]: Waiting for connection\n");
 
     int from_client = open(WKP, O_RDONLY, 0);
-    ASSERT(from_client, "Server open WKP")
+    ASSERT(from_client, "Server open WKP");
 
     printf("[SERVER]: Client connected\n");
 
     // Client connected, so remove the pipe
     remove(WKP);
+
+    printf("[SERVER]: Removed WKP\n");
 
     return from_client;
 }
@@ -44,7 +47,21 @@ int server_setup() {
   =========================*/
 int server_handshake(int *to_client) {
     int from_client = server_setup();
-    printf("[SERVER]: From client FD: %d\n", from_client);
+
+    char syn[HANDSHAKE_BUFFER_SIZE];
+    read(from_client, syn, sizeof(syn));
+
+    *to_client = atoi(syn);
+
+    printf("[SERVER]: Received SYN: %d\n", *to_client);
+
+    int downstream = open(syn, O_WRONLY, 0);
+    ASSERT(downstream, "Server open PP")
+
+    int syn_ack_value = rand();
+    write(downstream, &syn_ack_value, sizeof(syn_ack_value));
+
+    printf("[SERVER]: Sent SYN-ACK: %d\n", syn_ack_value);
 
     return from_client;
 }
@@ -81,10 +98,16 @@ int client_handshake(int *to_server) {
     // Write SYN
     write(upstream, pid_string, sizeof(pid_string));
 
-    printf("[CLIENT]: Sent SYN\n");
+    printf("[CLIENT]: Sent SYN: %d\n", client_pid);
+    printf("[CLIENT]: Waiting for SYN-ACK\n");
 
     int from_server = open(pid_string, O_RDONLY, 0);
     ASSERT(from_server, "Client open PP")
+
+    int syn_ack_value;
+    read(from_server, &syn_ack_value, sizeof(syn_ack_value));
+
+    printf("[CLIENT]: Received SYN-ACK: %d\n", syn_ack_value);
 
     return from_server;
 }

@@ -1,7 +1,7 @@
 #include "pipe_networking.h"
 
 int main() {
-
+    srand(time(NULL));
     int to_server;
     int from_server;
 
