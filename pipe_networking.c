@@ -63,6 +63,11 @@ int server_handshake(int *to_client) {
 
     printf("[SERVER]: Sent SYN-ACK: %d\n", syn_ack_value);
 
+    int ack;
+    read(from_client, &ack, sizeof(ack));
+    printf("[SERVER]: Received ACK: %d\n", ack);
+    printf("[SERVER]: Handshake complete\n");
+
     return from_client;
 }
 
@@ -108,6 +113,11 @@ int client_handshake(int *to_server) {
     read(from_server, &syn_ack_value, sizeof(syn_ack_value));
 
     printf("[CLIENT]: Received SYN-ACK: %d\n", syn_ack_value);
+
+    int ack_value = syn_ack_value + 1;
+    write(upstream, &ack_value, sizeof(ack_value));
+
+    printf("[CLIENT]: Sent ACK: %d\n", ack_value);
 
     return from_server;
 }
