@@ -2,6 +2,7 @@
 
 #define ASSERT(value, error_prefix) \
     if ((value) == -1) {            \
+        fprintf(stderr, "[ASSERTION FAILED] ");         \
         perror(error_prefix);       \
         exit(EXIT_FAILURE);         \
     }
@@ -27,14 +28,13 @@ int server_setup() {
     ASSERT(mkfifo_ret, "mkfifo")
 
     printf("[SERVER]: Created WKP\n");
-    printf("[SERVER]: Waiting for connection\n");
+    printf("[SERVER]: Waiting for connection...\n");
 
     int from_client = open(WKP, O_RDONLY, 0);
     ASSERT(from_client, "Server open WKP");
 
     printf("[SERVER]: Client connected\n");
 
-    // Client connected, so remove the pipe
     remove(WKP);
 
     return from_client;
@@ -52,6 +52,8 @@ int server_setup() {
 int server_handshake(int *to_client) {
     int from_client = server_setup();
 
+    printf("[SERVER]: Waiting for SYN...\n");
+
     char syn[HANDSHAKE_BUFFER_SIZE];
     read(from_client, syn, sizeof(syn));
     *to_client = atoi(syn);
@@ -66,11 +68,18 @@ int server_handshake(int *to_client) {
     write(downstream, &syn_ack_value, sizeof(syn_ack_value));
 
     printf("[SERVER]: Sent SYN-ACK: %d\n", syn_ack_value);
+    printf("[SERVER]: Waiting for ACK...\n");
 
     int ack_value;
     read(from_client, &ack_value, sizeof(ack_value));
 
     printf("[SERVER]: Received ACK: %d\n", ack_value);
+
+    if (ack_value != syn_ack_value + 1) {
+        printf("[SERVER]: Invalid ACK received\n");
+        return -1;
+    }
+
     printf("[SERVER]: Handshake complete\n");
 
     return from_client;
@@ -106,17 +115,17 @@ int client_handshake(int *to_server) {
     write(upstream, pid_string, sizeof(pid_string));
 
     printf("[CLIENT]: Sent SYN: %d\n", client_pid);
-    printf("[CLIENT]: Waiting for SYN-ACK\n");
+    printf("[CLIENT]: Waiting for SYN-ACK...\n");
 
     int from_server = open(pid_string, O_RDONLY, 0);
     ASSERT(from_server, "Client open PP")
+
+    remove(pid_string);
 
     int syn_ack_value;
     read(from_server, &syn_ack_value, sizeof(syn_ack_value));
 
     printf("[CLIENT]: Received SYN-ACK: %d\n", syn_ack_value);
-
-    remove(pid_string);
 
     int ack_value = syn_ack_value + 1;
     write(upstream, &ack_value, sizeof(ack_value));
