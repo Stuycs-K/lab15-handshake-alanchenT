@@ -1,5 +1,11 @@
 #include "pipe_networking.h"
 
+#define ASSERT(value, error_prefix) \
+    if ((value) == -1) {            \
+        perror(error_prefix);       \
+        exit(EXIT_FAILURE);         \
+    }
+
 // WKP: Client to server
 // PP: Server to client
 
@@ -31,8 +37,6 @@ int server_setup() {
     // Client connected, so remove the pipe
     remove(WKP);
 
-    printf("[SERVER]: Removed WKP\n");
-
     return from_client;
 }
 
@@ -58,6 +62,7 @@ int server_handshake(int *to_client) {
     int downstream = open(syn, O_WRONLY, 0);
     ASSERT(downstream, "Server open PP")
 
+    srand(time(NULL));
     int syn_ack_value = rand();
     write(downstream, &syn_ack_value, sizeof(syn_ack_value));
 
@@ -92,7 +97,7 @@ int client_handshake(int *to_server) {
     int mkfifo_ret = mkfifo(pid_string, 0644);
     ASSERT(mkfifo_ret, "Client create PP")
 
-    printf("[CLIENT]: Created PP\n");
+    printf("[CLIENT]: Created PP: %s\n", pid_string);
 
     // Open WKP
     int upstream = open(WKP, O_WRONLY, 0);

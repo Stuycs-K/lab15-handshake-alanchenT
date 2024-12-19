@@ -23,12 +23,6 @@
 #define MESSAGE 3
 #define EXIT 4
 
-#define ASSERT(value, error_prefix) \
-    if ((value) == -1) {            \
-        perror(error_prefix);       \
-        exit(EXIT_FAILURE);         \
-    }
-
 int server_handshake(int *to_client);
 int client_handshake(int *to_server);
 
