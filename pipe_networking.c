@@ -1,10 +1,10 @@
 #include "pipe_networking.h"
 
-#define ASSERT(value, error_prefix) \
-    if ((value) == -1) {            \
-        fprintf(stderr, "[ASSERTION FAILED] ");         \
-        perror(error_prefix);       \
-        exit(EXIT_FAILURE);         \
+#define ASSERT(value, error_prefix)                         \
+    if ((value) == -1) {                                    \
+        fprintf(stderr, "[ASSERTION FAILED]: ");            \
+        perror(error_prefix);                               \
+        exit(EXIT_FAILURE);                                 \
     }
 
 // WKP: Client to server
@@ -131,6 +131,7 @@ int client_handshake(int *to_server) {
     write(upstream, &ack_value, sizeof(ack_value));
 
     printf("[CLIENT]: Sent ACK: %d\n", ack_value);
+    printf("[CLIENT]: Handshake complete\n");
 
     return from_server;
 }
