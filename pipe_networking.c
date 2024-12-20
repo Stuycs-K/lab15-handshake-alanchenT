@@ -1,12 +1,5 @@
 #include "pipe_networking.h"
 
-#define ASSERT(value, error_prefix)                         \
-    if ((value) == -1) {                                    \
-        fprintf(stderr, "[ASSERTION FAILED]: ");            \
-        perror(error_prefix);                               \
-        exit(EXIT_FAILURE);                                 \
-    }
-
 // WKP: Client to server
 // PP: Server to client
 
