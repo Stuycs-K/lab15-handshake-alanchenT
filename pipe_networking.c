@@ -65,13 +65,15 @@ int server_handshake(int *to_client) {
 
     srand(time(NULL));
     int syn_ack_value = rand();
-    write(downstream, &syn_ack_value, sizeof(syn_ack_value));
+    ssize_t bytes = write(downstream, &syn_ack_value, sizeof(syn_ack_value));
+    ASSERT(bytes, "Server write SYN-ACK")
 
     printf("[SERVER]: Sent SYN-ACK: %d\n", syn_ack_value);
     printf("[SERVER]: Waiting for ACK...\n");
 
     int ack_value;
-    read(from_client, &ack_value, sizeof(ack_value));
+    bytes = read(from_client, &ack_value, sizeof(ack_value));
+    ASSERT(bytes, "Server read ACK")
 
     printf("[SERVER]: Received ACK: %d\n", ack_value);
 
@@ -112,7 +114,8 @@ int client_handshake(int *to_server) {
     *to_server = upstream;
 
     // Write SYN
-    write(upstream, pid_string, sizeof(pid_string));
+    ssize_t bytes = write(upstream, pid_string, sizeof(pid_string));
+    ASSERT(bytes, "Client write SYN")
 
     printf("[CLIENT]: Sent SYN: %d\n", client_pid);
     printf("[CLIENT]: Waiting for SYN-ACK...\n");
@@ -123,12 +126,14 @@ int client_handshake(int *to_server) {
     remove(pid_string);
 
     int syn_ack_value;
-    read(from_server, &syn_ack_value, sizeof(syn_ack_value));
+    bytes = read(from_server, &syn_ack_value, sizeof(syn_ack_value));
+    ASSERT(bytes, "Client read SYN-ACK")
 
     printf("[CLIENT]: Received SYN-ACK: %d\n", syn_ack_value);
 
     int ack_value = syn_ack_value + 1;
-    write(upstream, &ack_value, sizeof(ack_value));
+    bytes = write(upstream, &ack_value, sizeof(ack_value));
+    ASSERT(bytes, "Client write ACK")
 
     printf("[CLIENT]: Sent ACK: %d\n", ack_value);
     printf("[CLIENT]: Handshake complete\n");
