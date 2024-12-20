@@ -56,12 +56,12 @@ int server_handshake(int *to_client) {
 
     char syn[HANDSHAKE_BUFFER_SIZE];
     read(from_client, syn, sizeof(syn));
-    *to_client = atoi(syn);
 
     printf("[SERVER]: Received SYN: %d\n", *to_client);
 
     int downstream = open(syn, O_WRONLY, 0);
     ASSERT(downstream, "Server open PP")
+    *to_client = downstream;
 
     srand(time(NULL));
     int syn_ack_value = rand();
