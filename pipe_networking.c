@@ -50,7 +50,7 @@ int server_handshake(int *to_client) {
     char syn[HANDSHAKE_BUFFER_SIZE];
     read(from_client, syn, sizeof(syn));
 
-    printf("[SERVER]: Received SYN: %d\n", *to_client);
+    printf("[SERVER]: Received SYN: %s\n", syn);
 
     int downstream = open(syn, O_WRONLY, 0);
     ASSERT(downstream, "Server open PP")
