@@ -11,16 +11,18 @@ int main() {
 
     ssize_t bytes;
 
-    // Receive
-    int x;
-    bytes = read(from_client, &x, sizeof(x));
-    ASSERT(bytes, "Server receive fail")
+    srand(time(NULL));
 
-    printf("[SERVER TEST]: Received %d\n", x);
+    int random_number;
 
-    int y = x + 1;
-    bytes = write(to_client, &y, sizeof(y));
-    ASSERT(bytes, "Server send fail")
+    // Send int
+    while (1) {
+        random_number = (rand() % 100) + 1;
+        bytes = write(to_client, &random_number, sizeof(random_number));
+        ASSERT(bytes, "Server send fail")
 
-    printf("[SERVER TEST]: Sent %d\n", y);
+        printf("[SERVER]: Sent %d to client\n", random_number);
+
+        sleep(1);
+    }
 }
