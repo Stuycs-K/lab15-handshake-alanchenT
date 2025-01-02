@@ -51,9 +51,11 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-# Object files
-client
-server
+# Client and server objects
+basic_client
+basic_server
+persistent_server
+forking_server
 
 # WKP
 mario

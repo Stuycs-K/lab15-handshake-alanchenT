@@ -7,7 +7,6 @@ int main() {
     from_client = server_handshake(&to_client);
 
     printf("=================================\n");
-    printf("To client: %d, from client: %d\n", to_client, from_client);
 
     ssize_t bytes;
 
