@@ -25,11 +25,8 @@ int main() {
         from_client = server_handshake(&to_client);
 
         printf("=================================\n");
-
         send_loop(to_client, "PERSISTENT SERVER");
-
         printf("=================================\n");
-        printf("[PERSISTENT SERVER]: Client disconnect\n\n");
 
         close(to_client);
         close(from_client);

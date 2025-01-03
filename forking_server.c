@@ -20,6 +20,9 @@ void run_subserver(int from_client) {
 
     receive_loop(from_client, server_name);
 
+    close(from_client);
+    close(to_client);
+
     exit(EXIT_SUCCESS);
 }
 

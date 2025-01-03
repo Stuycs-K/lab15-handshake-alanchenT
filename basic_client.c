@@ -1,6 +1,8 @@
 #include "pipe_networking.h"
 #include "signal.h"
 
+#define SEND
+
 int main() {
     signal(SIGPIPE, SIG_IGN);
 

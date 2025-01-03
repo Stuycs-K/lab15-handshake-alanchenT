@@ -11,6 +11,8 @@ void receive_loop(int receive_from, char *name) {
 
         printf("[%s]: Received message: %s", name, message);
     }
+
+    printf("[%s]: Connection terminated\n", name);
 }
 
 void send_loop(int send_to, char *name) {
@@ -29,6 +31,8 @@ void send_loop(int send_to, char *name) {
 
         sleep(1);
     }
+
+    printf("[%s]: Connection terminated\n", name);
 }
 
 // WKP: Client to server
