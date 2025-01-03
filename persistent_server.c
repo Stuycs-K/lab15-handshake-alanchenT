@@ -7,6 +7,9 @@ static void handle_sigint(int signo) {
     }
 
     remove(WKP);
+    
+    printf("\n***Interrupt! Shutting down server\n");
+
     exit(EXIT_SUCCESS);
 }
 

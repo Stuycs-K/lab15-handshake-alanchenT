@@ -18,8 +18,6 @@ static void handle_sigint(int signo) {
 }
 
 void run_subserver(int from_client) {
-    // signal(SIGPIPE, SIG_IGN);
-
     int to_client = server_handshake_half(from_client);
 
     char server_name[32];

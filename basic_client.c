@@ -6,7 +6,7 @@ static void handle_sigint(int signo) {
         return;
     }
 
-    printf("***Interupt! Shutting down client");
+    printf("\n***Interupt! Shutting down client");
     exit(EXIT_SUCCESS);
 }
 

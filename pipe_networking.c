@@ -19,7 +19,7 @@ void send_loop(int send_to, char *name) {
     char message[256];
 
     while (1) {
-        snprintf(message, sizeof(message), "This is my cool random number: %d\n", (rand() % 100) + 1);
+        snprintf(message, sizeof(message), "NUMBER %d\n", (rand() % 100) + 1);
 
         ssize_t bytes_written = write(send_to, &message, sizeof(message));
 
