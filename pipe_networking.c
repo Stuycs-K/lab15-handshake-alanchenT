@@ -56,7 +56,6 @@ int server_handshake(int *to_client) {
     ASSERT(downstream, "Server open PP")
     *to_client = downstream;
 
-    srand(time(NULL));
     int syn_ack_value = rand();
     ssize_t bytes = write(downstream, &syn_ack_value, sizeof(syn_ack_value));
     ASSERT(bytes, "Server write SYN-ACK")
@@ -72,7 +71,7 @@ int server_handshake(int *to_client) {
 
     if (ack_value != syn_ack_value + 1) {
         printf("[SERVER]: Invalid ACK received\n");
-        return -1;
+        exit(EXIT_FAILURE);
     }
 
     printf("[SERVER]: Handshake complete\n");
