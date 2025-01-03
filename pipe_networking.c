@@ -1,5 +1,34 @@
 #include "pipe_networking.h"
 
+void receive_loop(int receive_from, char *name) {
+    char message[256];
+    while (1) {
+        ssize_t bytes_read = read(receive_from, &message, sizeof(message));
+        if (bytes_read == -1) {
+            break;
+        }
+
+        printf("[%s]: Received message: %s", name, message);
+    }
+}
+
+void send_loop(int send_to, char *name) {
+    char message[256];
+
+    while (1) {
+        snprintf(message, sizeof(message), "This is my cool random number: %d\n", (rand() % 100) + 1);
+
+        ssize_t bytes_written = write(send_to, &message, sizeof(message));
+        if (bytes_written == -1) {
+            break;
+        }
+
+        printf("[%s]: Sent message: %s", name, message);
+
+        sleep(1);
+    }
+}
+
 // WKP: Client to server
 // PP: Server to client
 
@@ -70,7 +99,7 @@ int server_handshake(int *to_client) {
     printf("[SERVER]: Received ACK: %d\n", ack_value);
 
     if (ack_value != syn_ack_value + 1) {
-        printf("[SERVER]: Invalid ACK received\n");
+        printf("[SERVER]: Invalid ACK received. Handshake failed\n");
         exit(EXIT_FAILURE);
     }
 
@@ -133,6 +162,40 @@ int client_handshake(int *to_server) {
     return from_server;
 }
 
+int server_handshake_half(int from_client) {
+    printf("[SERVER]: Waiting for SYN...\n");
+
+    char syn[HANDSHAKE_BUFFER_SIZE];
+    read(from_client, syn, sizeof(syn));
+
+    printf("[SERVER]: Received SYN: %s\n", syn);
+
+    int downstream = open(syn, O_WRONLY, 0);
+    ASSERT(downstream, "Server open PP")
+
+    int syn_ack_value = rand();
+    ssize_t bytes = write(downstream, &syn_ack_value, sizeof(syn_ack_value));
+    ASSERT(bytes, "Server write SYN-ACK")
+
+    printf("[SERVER]: Sent SYN-ACK: %d\n", syn_ack_value);
+    printf("[SERVER]: Waiting for ACK...\n");
+
+    int ack_value;
+    bytes = read(from_client, &ack_value, sizeof(ack_value));
+    ASSERT(bytes, "Server read ACK")
+
+    printf("[SERVER]: Received ACK: %d\n", ack_value);
+
+    if (ack_value != syn_ack_value + 1) {
+        printf("[SERVER]: Invalid ACK received. Handshake failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("[SERVER]: Handshake complete\n");
+
+    return downstream;
+}
+
 /*=========================
   server_connect
   args: int from_client
@@ -140,8 +203,9 @@ int client_handshake(int *to_server) {
   handles the subserver portion of the 3 way handshake
 
   returns the file descriptor for the downstream pipe.
-  =========================*/
+  =========================
 int server_connect(int from_client) {
     int to_client = 0;
     return to_client;
 }
+*/

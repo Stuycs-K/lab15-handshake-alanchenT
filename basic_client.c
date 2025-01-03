@@ -8,15 +8,5 @@ int main() {
 
     printf("=================================\n");
 
-    ssize_t bytes;
-
-    int random_number;
-    while (1) {
-        bytes = read(from_server, &random_number, sizeof(random_number));
-        ASSERT(bytes, "Client receive fail")
-
-        printf("[CLIENT]: Received %d from server\n", random_number);
-
-        sleep(1);
-    }
+    receive_loop(from_server, "CLIENT");
 }

@@ -23,20 +23,25 @@
 #define MESSAGE 3
 #define EXIT 4
 
-#define ASSERT(value, error_prefix)                         \
-    if ((value) == -1) {                                    \
-        fprintf(stderr, "[ASSERTION FAILED]: ");            \
-        perror(error_prefix);                               \
-        exit(EXIT_FAILURE);                                 \
+#define ASSERT(value, error_prefix)                                                                \
+    if ((value) == -1) {                                                                           \
+        fprintf(stderr, "[ASSERTION FAILED]: ");                                                   \
+        perror(error_prefix);                                                                      \
+        exit(EXIT_FAILURE);                                                                        \
     }
+
+void receive_loop(int receive_from, char *name);
+void send_loop(int send_to, char *name);
+
+// for forking server
+int server_setup();
 
 int server_handshake(int *to_client);
 int client_handshake(int *to_server);
 
-// for basic & persistent servers
-int server_connect(int from_client);
+int server_handshake_half(int from_client);
 
-// for forking server
-int server_setup();
+// for basic & persistent servers
+// int server_connect(int from_client);
 
 #endif
