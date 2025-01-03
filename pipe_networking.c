@@ -4,7 +4,8 @@ void receive_loop(int receive_from, char *name) {
     char message[256];
     while (1) {
         ssize_t bytes_read = read(receive_from, &message, sizeof(message));
-        if (bytes_read == -1) {
+
+        if (bytes_read <= 0) {
             break;
         }
 
@@ -19,7 +20,8 @@ void send_loop(int send_to, char *name) {
         snprintf(message, sizeof(message), "This is my cool random number: %d\n", (rand() % 100) + 1);
 
         ssize_t bytes_written = write(send_to, &message, sizeof(message));
-        if (bytes_written == -1) {
+
+        if (bytes_written <= 0) {
             break;
         }
 

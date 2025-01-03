@@ -11,15 +11,16 @@ static void handle_sigint(int signo) {
 }
 
 void run_subserver(int from_client) {
+    // signal(SIGPIPE, SIG_IGN);
+
     int to_client = server_handshake_half(from_client);
 
-    pid_t pid = getpid();
-    char message[256];
+    char server_name[32];
+    snprintf(server_name, sizeof(server_name), "SUBSERVER %d", getpid());
 
-    while (1) {
-        read(from_client, &message, sizeof(message));
-        printf("[SUBSERVER %d]: Received message: %s\n", pid, message);
-    }
+    receive_loop(from_client, server_name);
+
+    exit(EXIT_SUCCESS);
 }
 
 int main() {
