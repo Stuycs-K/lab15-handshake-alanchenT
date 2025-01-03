@@ -1,9 +1,19 @@
 #include "pipe_networking.h"
 #include "signal.h"
 
+static void handle_sigint(int signo) {
+    if (signo != SIGINT) {
+        return;
+    }
+
+    printf("***Interupt! Shutting down client");
+    exit(EXIT_SUCCESS);
+}
+
 #define SEND
 
 int main() {
+    signal(SIGINT, handle_sigint);
     signal(SIGPIPE, SIG_IGN);
 
     int to_server;

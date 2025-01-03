@@ -1,12 +1,19 @@
 #include "pipe_networking.h"
 #include "signal.h"
 
+pid_t main_server_pid;
+
 static void handle_sigint(int signo) {
     if (signo != SIGINT) {
         return;
     }
 
     remove(WKP);
+
+    if (getpid() == main_server_pid) {
+        printf("\n***Interrupt! Shutting down server\n");
+    }
+
     exit(EXIT_SUCCESS);
 }
 
@@ -28,6 +35,8 @@ void run_subserver(int from_client) {
 
 int main() {
     signal(SIGINT, handle_sigint);
+
+    main_server_pid = getpid();
 
     int from_client;
 
